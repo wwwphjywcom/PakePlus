@@ -1,0 +1,714 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📖 课文详情 - 英语智能学习</title>
+    <style>
+        /* ===== 全局样式 ===== */
+        :root {
+            --primary: #4a6fa5;
+            --primary-dark: #3a5f95;
+            --primary-light: #6b8cbc;
+            --text: #1a2332;
+            --text-light: #6b7a8f;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 12px;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: 30px;
+        }
+
+        /* ===== 顶部 ===== */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+            .app-header .logo {
+                font-size: 18px;
+                font-weight: 700;
+            }
+
+                .app-header .logo span {
+                    font-size: 24px;
+                    margin-right: 4px;
+                }
+
+            .app-header .header-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+                .app-header .header-actions button {
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: #fff;
+                    padding: 6px 14px;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    cursor: pointer;
+                }
+
+        /* ===== 选择器 ===== */
+        .selector-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            align-items: center;
+        }
+
+            .selector-bar select {
+                flex: 1;
+                min-width: 100px;
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 14px;
+                background: #fff;
+                height: 38px;
+            }
+
+            .selector-bar .btn-load {
+                padding: 8px 20px;
+                background: var(--primary);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                height: 38px;
+                white-space: nowrap;
+            }
+
+                .selector-bar .btn-load:active {
+                    transform: scale(0.95);
+                }
+
+        /* ===== 加载状态 ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+            .loading .spinner {
+                display: inline-block;
+                width: 30px;
+                height: 30px;
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid var(--primary);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0)
+            }
+
+            100% {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* ===== 内容容器 ===== */
+        #contentContainer {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            min-height: 300px;
+        }
+
+        /* ===== 课文头部 ===== */
+        .lesson-header {
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--bg);
+            margin-bottom: 16px;
+        }
+
+            .lesson-header .title {
+                font-size: 20px;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+            .lesson-header .subtitle {
+                font-size: 14px;
+                color: var(--text-light);
+                margin-top: 4px;
+            }
+
+            .lesson-header .badge {
+                display: inline-block;
+                font-size: 11px;
+                background: var(--bg);
+                padding: 2px 12px;
+                border-radius: 12px;
+                color: #666;
+                margin-right: 4px;
+            }
+
+        /* ===== 板块样式 ===== */
+        .section-block {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+
+            .section-block .section-title {
+                font-size: 14px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .section-block .section-content {
+                font-size: 15px;
+                line-height: 1.8;
+                color: var(--text);
+                padding-left: 4px;
+            }
+
+                .section-block .section-content .line {
+                    padding: 2px 0;
+                }
+
+            .section-block .section-translation {
+                font-size: 14px;
+                color: var(--text-light);
+                margin-top: 4px;
+                padding-left: 4px;
+                border-top: 1px dashed #eee;
+                padding-top: 6px;
+            }
+
+        /* 不同板块颜色 */
+        .section-core {
+            border-left-color: #4a6fa5;
+            background: #f0f7ff;
+        }
+
+            .section-core .section-title {
+                color: #4a6fa5;
+            }
+
+        .section-activity {
+            border-left-color: #ff9800;
+            background: #fff8e1;
+        }
+
+            .section-activity .section-title {
+                color: #e65100;
+            }
+
+        .section-song {
+            border-left-color: #e91e63;
+            background: #fce4ec;
+        }
+
+            .section-song .section-title {
+                color: #c2185b;
+            }
+
+        .section-letters {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+            .section-letters .section-title {
+                color: #2e7d32;
+            }
+
+        .section-assessment {
+            border-left-color: #2196f3;
+            background: #e3f2fd;
+        }
+
+            .section-assessment .section-title {
+                color: #0d47a1;
+            }
+
+        /* 字母卡片 */
+        .letter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .letter-card {
+            text-align: center;
+            padding: 8px 14px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            min-width: 60px;
+            border: 1px solid #e0e0e0;
+        }
+
+            .letter-card .letter {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1a2332;
+            }
+
+            .letter-card .example {
+                font-size: 13px;
+                color: var(--text-light);
+            }
+
+            .letter-card .phonetic-small {
+                font-size: 12px;
+                color: #999;
+                font-family: "Times New Roman", serif;
+            }
+
+        /* 评价列表 */
+        .assessment-list {
+            list-style: none;
+            padding: 0;
+        }
+
+            .assessment-list li {
+                padding: 4px 0;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+                .assessment-list li::before {
+                    content: '☐';
+                    font-size: 16px;
+                    color: var(--primary);
+                }
+
+        /* 句子展示 */
+        .sentence-display {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+            .sentence-display:last-child {
+                border-bottom: none;
+            }
+
+            .sentence-display .en {
+                font-weight: 600;
+                font-size: 16px;
+            }
+
+            .sentence-display .phonetic {
+                font-size: 14px;
+                color: var(--text-light);
+                font-family: "Times New Roman", serif;
+            }
+
+            .sentence-display .zh {
+                font-size: 14px;
+                color: var(--text-light);
+                margin-top: 2px;
+            }
+
+        /* ===== 返回按钮 ===== */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 0;
+            cursor: pointer;
+        }
+
+            .back-link:hover {
+                text-decoration: underline;
+            }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.25s;
+            max-width: 90%;
+            white-space: nowrap;
+        }
+
+            .toast.show {
+                opacity: 1;
+            }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 400px) {
+            .selector-bar select {
+                min-width: 70px;
+                font-size: 13px;
+            }
+
+            .letter-card {
+                min-width: 50px;
+                padding: 6px 10px;
+            }
+
+                .letter-card .letter {
+                    font-size: 22px;
+                }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 顶部 ===== -->
+    <header class="app-header">
+        <div class="logo"><span>📖</span> 课文详情</div>
+        <div class="header-actions">
+            <button onclick="goBack()">🏠 返回</button>
+        </div>
+    </header>
+
+    <!-- ===== 选择器 ===== -->
+    <div class="selector-bar">
+        <select id="dbTextbook" onchange="loadDBUnits()">
+            <option value="">📚 选择教材</option>
+        </select>
+        <select id="dbUnit" onchange="loadDBLessons()">
+            <option value="">📖 选择单元</option>
+        </select>
+        <select id="dbLesson">
+            <option value="">📝 选择课文</option>
+        </select>
+        <button class="btn-load" onclick="loadLessonDetail()">📖 查看详情</button>
+    </div>
+
+    <!-- ===== 内容 ===== -->
+    <div id="contentContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top:12px;">选择教材、单元和课文，点击"查看详情"</p>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // API 配置
+        // ============================================================
+        var API_BASE = 'http://localhost:3000/api';
+
+        // ============================================================
+        // DOM 引用
+        // ============================================================
+        var $ = function(id) { return document.getElementById(id); };
+        var toastEl = $('toast');
+        var toastTimer = null;
+
+        function showToast(msg) {
+            toastEl.textContent = msg;
+            toastEl.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function() { toastEl.classList.remove('show'); }, 2000);
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // ============================================================
+        // 加载教材列表
+        // ============================================================
+        function loadDBTextbooks() {
+            fetch(API_BASE + '/textbooks')
+                .then(function(response) { return response.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        var select = $('dbTextbook');
+                        select.innerHTML = '<option value="">📚 选择教材</option>';
+                        for (var i = 0; i < result.data.length; i++) {
+                            var opt = document.createElement('option');
+                            opt.value = result.data[i].Id;
+                            opt.textContent = result.data[i].Name + ' (' + result.data[i].Grade + ')';
+                            select.appendChild(opt);
+                        }
+                        if (result.data.length > 0) {
+                            select.value = result.data[0].Id;
+                            loadDBUnits();
+                        }
+                    }
+                })
+                .catch(function(e) {
+                    console.error('加载教材失败:', e);
+                    showToast('❌ 加载教材失败');
+                });
+        }
+
+        // ============================================================
+        // 加载单元
+        // ============================================================
+        function loadDBUnits() {
+            var textbookId = parseInt($('dbTextbook').value);
+            var unitSelect = $('dbUnit');
+            var lessonSelect = $('dbLesson');
+            unitSelect.innerHTML = '<option value="">📖 选择单元</option>';
+            lessonSelect.innerHTML = '<option value="">📝 选择课文</option>';
+
+            if (!textbookId) return;
+
+            fetch(API_BASE + '/units/' + textbookId)
+                .then(function(response) { return response.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        for (var i = 0; i < result.data.length; i++) {
+                            var opt = document.createElement('option');
+                            opt.value = result.data[i].Id;
+                            opt.textContent = result.data[i].UnitNumber + ' - ' + result.data[i].UnitName;
+                            unitSelect.appendChild(opt);
+                        }
+                        if (result.data.length > 0) {
+                            unitSelect.value = result.data[0].Id;
+                            loadDBLessons();
+                        }
+                    }
+                })
+                .catch(function(e) {
+                    console.error('加载单元失败:', e);
+                    showToast('❌ 加载单元失败');
+                });
+        }
+
+        // ============================================================
+        // 加载课文
+        // ============================================================
+        function loadDBLessons() {
+            var unitId = parseInt($('dbUnit').value);
+            var lessonSelect = $('dbLesson');
+            lessonSelect.innerHTML = '<option value="">📝 选择课文</option>';
+
+            if (!unitId) return;
+
+            fetch(API_BASE + '/lessons/' + unitId)
+                .then(function(response) { return response.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        for (var i = 0; i < result.data.length; i++) {
+                            var opt = document.createElement('option');
+                            opt.value = result.data[i].Id;
+                            opt.textContent = result.data[i].LessonNumber + ' - ' + result.data[i].Title;
+                            lessonSelect.appendChild(opt);
+                        }
+                        if (result.data.length > 0) {
+                            lessonSelect.value = result.data[0].Id;
+                        }
+                    }
+                })
+                .catch(function(e) {
+                    console.error('加载课文失败:', e);
+                    showToast('❌ 加载课文失败');
+                });
+        }
+
+        // ============================================================
+        // 加载课文详情
+        // ============================================================
+        function loadLessonDetail() {
+            var lessonId = parseInt($('dbLesson').value);
+            if (!lessonId) {
+                showToast('请先选择一篇课文');
+                return;
+            }
+
+            var container = $('contentContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px;">加载中...</p></div>';
+
+            fetch(API_BASE + '/lesson/' + lessonId + '/full')
+                .then(function(response) { return response.json(); })
+                .then(function(result) {
+                    if (result.success && result.data) {
+                        renderLessonDetail(result.data);
+                    } else {
+                        container.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">加载失败</div>';
+                    }
+                })
+                .catch(function(e) {
+                    console.error('加载课文详情失败:', e);
+                    container.innerHTML = '<div style="text-align:center;padding:40px;color:#e74c3c;">❌ 加载失败，请检查服务器连接</div>';
+                    showToast('❌ 加载失败');
+                });
+        }
+
+        // ============================================================
+        // 渲染课文详情
+        // ============================================================
+        function renderLessonDetail(data) {
+            var lesson = data.lesson || {};
+            var sentences = data.sentences || [];
+            var activities = data.activities || [];
+            var letters = data.letters || [];
+            var assessment = data.assessment || [];
+
+            var html = '';
+
+            // 头部信息
+            html += '<div class="lesson-header">';
+            html += '<div class="title">' + (lesson.LessonNumber || '') + ' - ' + (lesson.Title || '课文') + '</div>';
+            html += '<div class="subtitle">';
+            html += '<span class="badge">' + (lesson.UnitNumber || '') + ' ' + (lesson.UnitName || '') + '</span>';
+            html += '<span class="badge">' + (lesson.TextbookName || '') + '</span>';
+            html += '<span class="badge">💬 ' + sentences.length + ' 句</span>';
+            html += '</div>';
+            html += '</div>';
+
+            // ===== 1. 核心对话 =====
+            if (sentences.length > 0) {
+                html += '<div class="section-block section-core">';
+                html += '<div class="section-title">💬 核心对话 (Look, listen and say)</div>';
+                html += '<div class="section-content">';
+                for (var i = 0; i < sentences.length; i++) {
+                    var s = sentences[i];
+                    html += '<div class="sentence-display">';
+                    html += '<div class="en">' + (s.OriginalText || '') + '</div>';
+                    if (s.PhoneticText) {
+                        html += '<div class="phonetic">' + s.PhoneticText + '</div>';
+                    }
+                    if (s.Translation) {
+                        html += '<div class="zh">📖 ' + s.Translation + '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div></div>';
+            }
+
+            // ===== 2. 活动板块 =====
+            if (activities.length > 0) {
+                for (var ai = 0; ai < activities.length; ai++) {
+                    var act = activities[ai];
+                    var icon = act.ActivityType === 'Act it out' ? '🎭' :
+                               act.ActivityType === 'Listen and sing' ? '🎵' :
+                               act.ActivityType === 'Listen and chant' ? '🎤' : '📌';
+                    var sectionClass = act.ActivityType === 'Act it out' ? 'section-activity' : 'section-song';
+
+                    html += '<div class="section-block ' + sectionClass + '">';
+                    html += '<div class="section-title">' + icon + ' ' + (act.ActivityName || act.ActivityType) + '</div>';
+                    html += '<div class="section-content">';
+                    var lines = (act.Content || '').split('\n');
+                    for (var li = 0; li < lines.length; li++) {
+                        if (lines[li].trim()) {
+                            html += '<div class="line">' + lines[li] + '</div>';
+                        }
+                    }
+                    if (act.Translation) {
+                        html += '<div class="section-translation">📖 ' + act.Translation + '</div>';
+                    }
+                    html += '</div></div>';
+                }
+            }
+
+            // ===== 3. 字母学习 =====
+            if (letters.length > 0) {
+                html += '<div class="section-block section-letters">';
+                html += '<div class="section-title">🔤 字母学习 (Learn the letters)</div>';
+                html += '<div class="letter-grid">';
+                for (var li2 = 0; li2 < letters.length; li2++) {
+                    var l = letters[li2];
+                    html += '<div class="letter-card">';
+                    html += '<div class="letter">' + (l.Letter || '') + '</div>';
+                    html += '<div class="example">' + (l.ExampleWord || '') + '</div>';
+                    html += '<div class="phonetic-small">' + (l.ExamplePhonetic || '') + '</div>';
+                    if (l.ExampleTranslation) {
+                        html += '<div style="font-size:11px;color:#999;">' + l.ExampleTranslation + '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div></div>';
+            }
+
+            // ===== 4. 自我评价 =====
+            if (assessment.length > 0) {
+                html += '<div class="section-block section-assessment">';
+                html += '<div class="section-title">✅ 自我评价 (Self-assessment)</div>';
+                html += '<ul class="assessment-list">';
+                for (var ai2 = 0; ai2 < assessment.length; ai2++) {
+                    html += '<li>' + (assessment[ai2].Statement || '') + '</li>';
+                }
+                html += '</ul></div>';
+            }
+
+            // 空状态
+            if (sentences.length === 0 && activities.length === 0 && letters.length === 0) {
+                html += '<div style="text-align:center;padding:40px;color:#999;">该课文暂无数据</div>';
+            }
+
+            // 底部信息
+            html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eee;font-size:12px;color:#999;text-align:center;">';
+            html += '📚 ' + (lesson.TextbookName || '') + ' | ' + (lesson.UnitNumber || '') + ' | ' + (lesson.LessonNumber || '');
+            html += '</div>';
+
+            $('contentContainer').innerHTML = html;
+            showToast('✅ 加载完成');
+        }
+
+        // ============================================================
+        // 初始化
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDBTextbooks();
+            console.log('📖 课文详情页面已加载');
+        });
+
+        // ============================================================
+        // 暴露全局
+        // ============================================================
+        window.loadDBUnits = loadDBUnits;
+        window.loadDBLessons = loadDBLessons;
+        window.loadLessonDetail = loadLessonDetail;
+        window.loadDBTextbooks = loadDBTextbooks;
+        window.goBack = goBack;
+        window.showToast = showToast;
+    </script>
+
+</body>
+</html>
